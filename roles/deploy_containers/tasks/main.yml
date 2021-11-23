@@ -1,0 +1,6 @@
+---
+- name: Load vars file
+  include_vars: "{{ vars_file }}"
+- name: Start the dev environment containers
+  community.docker.docker_compose:
+    project_src: "{{ ansible_facts.env.PWD }}/docker/"

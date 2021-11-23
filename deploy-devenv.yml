@@ -1,0 +1,12 @@
+---
+- hosts: all
+- name: Start the Docker containers used in the dev env
+  hosts: localhost
+  become: true
+  roles:
+    - role: deploy_containers
+      vars_file : "{{ ansible_facts.env.PWD }}/vars.yml"
+    - role: db_structure
+      vars_file : "{{ ansible_facts.env.PWD }}/vars.yml"
+    - role: db_users
+      vars_file : "{{ ansible_facts.env.PWD }}/vars.yml"

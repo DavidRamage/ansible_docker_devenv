@@ -1,0 +1,68 @@
+---
+- name: Load vars file
+  include_vars: "{{ vars_file }}"
+
+- name: Wait for the db container to start
+  wait_for:
+    timeout: 15
+    port: 5432
+    host: "{{ pg_host }}"
+
+- name: Create the movie database
+  community.postgresql.postgresql_db:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    name: movie_db
+    state: present
+
+- name: Create the movie_title table
+  community.postgresql.postgresql_table:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    table: movie_title
+    columns:
+      - id serial primary key
+      - title varchar(64)
+      - release_year int
+      - rating int
+
+- name: Create the actors table
+  community.postgresql.postgresql_table:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    table: actor
+    columns:
+      - id serial primary key
+      - name varchar(64)
+
+- name: Create the directors table
+  community.postgresql.postgresql_table:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    table: director
+    columns:
+      - id serial primary key
+      - name varchar(64)
+
+- name: Create the join table
+  community.postgresql.postgresql_table:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    table: movie_join
+    columns:
+      - id serial primary key
+      - movie_id int
+      - actor_id int
+      - director_id int
+      - CONSTRAINT movie_fk FOREIGN KEY(movie_id) references movie_title(id)
+      - CONSTRAINT actor_fk FOREIGN KEY(actor_id) references actor(id)
+      - CONSTRAINT director_fk FOREIGN KEY(director_id) references director(id)

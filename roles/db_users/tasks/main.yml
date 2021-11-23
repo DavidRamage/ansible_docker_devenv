@@ -1,0 +1,61 @@
+---
+- name: Load vars file
+  include_vars: "{{ vars_file }}"
+
+- name: Create a user with select-only privs
+  community.postgresql.postgresql_user:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    name: movie_reader
+    password: movie_reader_pass
+
+- name: Apply privs to the select-only user
+  community.postgresql.postgresql_privs:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    objs: ALL_IN_SCHEMA
+    privs: SELECT
+    role: movie_reader
+
+- name: Create a user with full-on privs
+  community.postgresql.postgresql_user:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    name: movie_admin
+    password: movie_admin_pass
+
+- name: Apply privs to the admin user
+  community.postgresql.postgresql_privs:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    objs: ALL_IN_SCHEMA
+    privs: ALL
+    role: movie_admin
+
+- name: Create a read/write user for the db
+  community.postgresql.postgresql_user:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    name: movie_rw
+    password: movie_rw_pass
+
+
+- name: Apply privs to the read/write
+  community.postgresql.postgresql_privs:
+    login_host: "{{ pg_host }}"
+    login_user: "{{ pg_user }}"
+    login_password: "{{ pg_password }}"
+    db: movie_db
+    objs: ALL_IN_SCHEMA
+    privs: SELECT,INSERT,UPDATE
+    role: movie_rw
